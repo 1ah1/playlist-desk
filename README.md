@@ -3,7 +3,7 @@
 A Chrome extension that turns any YouTube playlist — including **Watch Later**, which
 the official API refuses to expose — into a searchable, filterable, bulk-editable list.
 
-Four thousand videos in Watch Later means YouTube makes you scroll to the bottom before
+A few thousand videos in Watch Later means YouTube makes you scroll to the bottom before
 you can search, and delete them one click at a time. Playlist Desk indexes the whole
 playlist in a few seconds, then searches it instantly and edits it in batches.
 
