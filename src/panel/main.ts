@@ -3,7 +3,7 @@
 
 import { call, tellHost, YT } from './client';
 import { db } from './db';
-import { AUTHOR_URL, DONATE_URL, SOURCE_URL } from './about';
+import { AUTHOR_URL, PAYPAL_URL, SOURCE_URL, WALLETS } from './about';
 import type { PlaylistRecord, PlaylistSummary, Video } from '../shared/types';
 
 // ---------- state ----------
@@ -556,7 +556,7 @@ el.openSelected.addEventListener('click', () => {
 document.addEventListener('keydown', (e) => {
   const target = e.target as HTMLElement;
   const typing = /^(INPUT|SELECT|TEXTAREA)$/.test(target.tagName);
-  if (e.key === 'Escape' && !el.dialog.open) {
+  if (e.key === 'Escape' && !el.dialog.open && !$<HTMLDialogElement>('supportDialog').open) {
     typing ? target.blur() : void closePanel();
     return;
   }
@@ -579,9 +579,36 @@ document.addEventListener('keydown', (e) => {
 function renderAbout(): void {
   $<HTMLAnchorElement>('aboutAuthor').href = AUTHOR_URL;
   $<HTMLAnchorElement>('aboutSource').href = SOURCE_URL;
-  const donate = $<HTMLAnchorElement>('aboutDonate');
-  donate.href = DONATE_URL;
-  donate.hidden = !DONATE_URL;
+
+  const dialog = $<HTMLDialogElement>('supportDialog');
+  const open = $<HTMLButtonElement>('aboutDonate');
+  const paypal = $<HTMLAnchorElement>('paypalBtn');
+  const list = $<HTMLUListElement>('walletList');
+  const wallets = WALLETS.filter((w) => w.address && !w.address.includes('…'));
+  const hasPaypal = Boolean(PAYPAL_URL) && !PAYPAL_URL.includes('YOUR_HANDLE');
+
+  open.hidden = !hasPaypal && wallets.length === 0;
+  paypal.hidden = !hasPaypal;
+  paypal.href = PAYPAL_URL;
+  list.innerHTML = wallets
+    .map(
+      (w) => `<li><div><div class="wname">${esc(w.name)}</div><code>${esc(w.address)}</code></div>
+        <button class="btn ghost" type="button" data-copy="${esc(w.address)}">Copy</button></li>`,
+    )
+    .join('');
+  list.addEventListener('click', async (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-copy]');
+    if (!btn) return;
+    try {
+      await navigator.clipboard.writeText(btn.dataset['copy'] ?? '');
+      btn.textContent = 'Copied';
+      setTimeout(() => (btn.textContent = 'Copy'), 1500);
+    } catch {
+      toast('Copy failed — select the address and copy manually');
+    }
+  });
+  open.addEventListener('click', () => dialog.showModal());
+  $<HTMLButtonElement>('supportClose').addEventListener('click', () => dialog.close());
 }
 
 void (async () => {

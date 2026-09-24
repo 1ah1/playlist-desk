@@ -52,7 +52,7 @@
       </section>
       <footer class="about">
         <a id="aboutAuthor" target="_blank" rel="noopener">Made by @SpartA1ah1</a>
-        <a id="aboutDonate" target="_blank" rel="noopener" hidden>Support the project ♥</a>
+        <button id="aboutDonate" class="linkish" type="button" hidden>Support the project ♥</button>
         <a id="aboutSource" target="_blank" rel="noopener">Source &amp; issues</a>
       </footer>
     </aside>
@@ -101,6 +101,16 @@
         <button value="ok" id="pickOk" class="btn primary">Confirm</button>
       </div>
     </form>
+  </dialog>
+
+  <dialog id="supportDialog" class="dialog">
+    <h3>Support Playlist Desk</h3>
+    <p class="muted">Free, no ads, no tracking. Donations keep it maintained when YouTube changes.</p>
+    <a id="paypalBtn" class="btn primary paypal" target="_blank" rel="noopener" hidden>Donate with PayPal</a>
+    <ul id="walletList" class="wallets"></ul>
+    <div class="dialog-actions">
+      <button id="supportClose" class="btn ghost" type="button">Close</button>
+    </div>
   </dialog>
 
   <div id="toast" class="toast" hidden><span id="toastText"></span><button id="toastAction" class="toast-btn" hidden></button></div>
