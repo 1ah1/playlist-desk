@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Playlist Desk</title>
+  <link rel="stylesheet" href="./panel.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="top-left">
+      <select id="playlistSelect" class="select" aria-label="Playlist"></select>
+      <button id="syncBtn" class="btn">Sync</button>
+      <span id="spinner" class="spinner" hidden></span>
+      <span id="syncStatus" class="muted"></span>
+    </div>
+    <div class="top-center">
+      <input id="search" class="search" type="search" placeholder="Search titles and channels  ( / )" autocomplete="off" />
+    </div>
+    <div class="top-right">
+      <select id="sort" class="select" aria-label="Sort">
+        <option value="added-desc">Newest added</option>
+        <option value="added-asc">Oldest added</option>
+        <option value="length-desc">Longest</option>
+        <option value="length-asc">Shortest</option>
+        <option value="title">Title A–Z</option>
+        <option value="channel">Channel A–Z</option>
+      </select>
+      <button id="closeBtn" class="btn icon" title="Close (Esc)" aria-label="Close">✕</button>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <section class="group">
+        <h2>Duration</h2>
+        <label><input type="radio" name="dur" value="any" checked /> Any</label>
+        <label><input type="radio" name="dur" value="short" /> Under 4 min</label>
+        <label><input type="radio" name="dur" value="mid" /> 4 – 20 min</label>
+        <label><input type="radio" name="dur" value="long" /> Over 20 min</label>
+      </section>
+      <section class="group">
+        <h2>Show only</h2>
+        <label><input type="checkbox" id="fUnavailable" /> Unavailable videos</label>
+        <label><input type="checkbox" id="fWatched" /> Started or watched</label>
+        <label><input type="checkbox" id="fDupes" /> Duplicates</label>
+      </section>
+      <section class="group grow">
+        <h2>Channels</h2>
+        <input id="channelSearch" class="mini" type="search" placeholder="Filter channels" />
+        <ul id="channelList" class="channels"></ul>
+      </section>
+      <footer class="about">
+        <a id="aboutAuthor" target="_blank" rel="noopener">Made by @SpartA1ah1</a>
+        <a id="aboutDonate" target="_blank" rel="noopener" hidden>Support the project ♥</a>
+        <a id="aboutSource" target="_blank" rel="noopener">Source &amp; issues</a>
+      </footer>
+    </aside>
+
+    <main class="list-wrap">
+      <div class="list-head">
+        <label class="check-all"><input type="checkbox" id="checkAll" /> <span id="countLabel">0 videos</span></label>
+        <div class="pager">
+          <button id="openSelected" class="btn ghost" hidden>Open selected in tabs</button>
+          <span id="pageLabel"></span>
+          <button id="prevPage" class="btn icon" aria-label="Previous page">‹</button>
+          <button id="nextPage" class="btn icon" aria-label="Next page">›</button>
+        </div>
+      </div>
+      <div id="empty" class="empty">
+        <p class="empty-title">Nothing indexed yet</p>
+        <p class="muted">Pick a playlist and press Sync. Watch later with a few thousand videos takes about ten seconds.</p>
+      </div>
+      <div id="scroller" class="scroller" hidden><div id="rows"></div></div>
+    </main>
+  </div>
+
+  <footer id="selbar" class="selbar" hidden>
+    <span id="selCount"></span>
+    <button id="removeBtn" class="btn danger">Remove from playlist</button>
+    <button id="moveBtn" class="btn">Move to…</button>
+    <button id="copyBtn" class="btn">Copy to…</button>
+    <button id="exportBtn" class="btn ghost">Export CSV</button>
+    <button id="clearSel" class="btn ghost">Clear</button>
+  </footer>
+
+  <div id="progress" class="progress" hidden>
+    <div class="progress-card">
+      <p id="progressText"></p>
+      <div class="bar"><div id="barFill"></div></div>
+    </div>
+  </div>
+
+  <dialog id="pickDialog" class="dialog">
+    <form method="dialog">
+      <h3 id="pickTitle">Move to</h3>
+      <select id="pickSelect" class="select wide"></select>
+      <p class="muted" id="pickHint"></p>
+      <div class="dialog-actions">
+        <button value="cancel" class="btn ghost">Cancel</button>
+        <button value="ok" id="pickOk" class="btn primary">Confirm</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" hidden><span id="toastText"></span><button id="toastAction" class="toast-btn" hidden></button></div>
+
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

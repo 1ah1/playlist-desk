@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect x="8" y="8" width="112" height="112" rx="28" fill="#0f0f0f"/>
+  <!-- three list rows -->
+  <rect x="30" y="34" width="12" height="12" rx="3" fill="#3ea6ff"/>
+  <rect x="50" y="36" width="48" height="8" rx="4" fill="#f1f1f1"/>
+  <rect x="30" y="58" width="12" height="12" rx="3" fill="#3ea6ff"/>
+  <rect x="50" y="60" width="48" height="8" rx="4" fill="#f1f1f1"/>
+  <!-- last row: checked -->
+  <rect x="30" y="82" width="12" height="12" rx="3" fill="#3ea6ff"/>
+  <path d="M32.5 88 l3.5 3.5 l6 -7" fill="none" stroke="#0f0f0f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="50" y="84" width="32" height="8" rx="4" fill="#aaaaaa"/>
+</svg>

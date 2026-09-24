@@ -1,0 +1,57 @@
+{
+  "manifest_version": 3,
+  "name": "Playlist Desk",
+  "version": "1.0.0",
+  "description": "Search, filter and bulk-manage your YouTube playlists — including Watch Later. Runs locally in your browser.",
+  "author": "SpartA1ah1 (https://x.com/SpartA1ah1)",
+  "homepage_url": "https://github.com/1ah1/playlist-desk",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "host_permissions": [
+    "https://www.youtube.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.youtube.com/*"
+      ],
+      "js": [
+        "content/bridge.js"
+      ],
+      "world": "MAIN",
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.youtube.com/*"
+      ],
+      "js": [
+        "content/inject.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "panel/*",
+        "assets/*",
+        "chunks/*"
+      ],
+      "matches": [
+        "https://www.youtube.com/*"
+      ]
+    }
+  ],
+  "action": {
+    "default_title": "Playlist Desk — open YouTube and press the Playlists button (Alt+P)",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
+  }
+}
