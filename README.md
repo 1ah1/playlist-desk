@@ -79,8 +79,9 @@ Playlist Desk is free and has no ads or tracking. If it saved you an afternoon o
 scrolling, you can support continued maintenance (YouTube changes break it a few times
 a year). The same addresses are under **Support the project** inside the extension.
 
-- USDT (TRC-20, Tron): `T…`
-- USDC (Base): `0x…`
+- Bitcoin (BTC): `bc1q6mve0p934u0e5g3pfxtqrdgugxkqauxrdtl6c6`
+- Ethereum & EVM chains (ETH, USDC, USDT on Base, BSC, Arbitrum, Polygon): `0x6C9Db6c3fde11614b649D9D02cDf991f08Fc4e35`
+- Tron (TRX, USDT TRC-20): `TSaoa1rUCUGkHRcwxo2kDe6PBtRc6XP5M8`
 
 ## Author
 

@@ -7,6 +7,7 @@ export const PAYPAL_URL = '';
 
 /** Crypto addresses shown with a Copy button. Entries still containing "…" are hidden. */
 export const WALLETS: { name: string; address: string }[] = [
-  { name: 'USDT (TRC-20, Tron)', address: 'T…' },
-  { name: 'USDC (Base)', address: '0x…' },
+  { name: 'Bitcoin (BTC)', address: 'bc1q6mve0p934u0e5g3pfxtqrdgugxkqauxrdtl6c6' },
+  { name: 'Ethereum & EVM chains — ETH, USDC, USDT on Base, BSC, Arbitrum, Polygon', address: '0x6C9Db6c3fde11614b649D9D02cDf991f08Fc4e35' },
+  { name: 'Tron — TRX, USDT (TRC-20)', address: 'TSaoa1rUCUGkHRcwxo2kDe6PBtRc6XP5M8' },
 ];
