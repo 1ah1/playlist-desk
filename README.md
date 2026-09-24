@@ -73,6 +73,16 @@ TypeScript (strict), Vite, Manifest V3, IndexedDB. No framework, no runtime depe
 
 Nothing leaves the browser. See [PRIVACY.md](PRIVACY.md).
 
+   ## Support
+
+   Playlist Desk is free and has no ads or tracking. If it saved you an afternoon of
+   scrolling, you can support continued maintenance (YouTube changes break it a few
+   times a year):
+
+   - Bitcoin: `bc1q…`
+   - Ethereum / USDT (ERC-20): `0x…`
+   - Solana: `…`
+
 ## Author
 
 [@SpartA1ah1](https://x.com/SpartA1ah1)
