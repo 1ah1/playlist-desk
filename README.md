@@ -14,8 +14,9 @@ playlist in a few seconds, then searches it instantly and edits it in batches.
 - **Full index in seconds** — reads the playlist through YouTube's own internal API
   (the one the site itself uses), 100 videos per request, streamed into the list while
   it loads. No scrolling, no page rendering.
-- **Instant search and filters** — title/channel search, duration buckets, per-channel
-  counts, unavailable (deleted/private) videos, started-or-watched, duplicates.
+- **Instant search and filters** — title/channel search, duration presets or a custom
+  min/max range, per-channel counts, Shorts, unavailable (deleted/private) videos,
+  started-or-watched, duplicates. Sort by date added, length, title, channel, views or upload date.
 - **Bulk actions** — select with click, shift-click, or select-all-filtered; remove,
   move or copy to another playlist, export CSV, open in tabs.
 - **10-second undo** on removals; nothing is sent to YouTube until the window closes.

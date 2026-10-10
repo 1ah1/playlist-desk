@@ -110,6 +110,8 @@ function parseVideo(r: Json, pos: number): Video {
   const resume = overlays.find((o) => o.thumbnailOverlayResumePlaybackRenderer);
   const info: string[] = r.videoInfo?.runs?.map((x: Json) => x.text) ?? [];
   const title = runsText(r.title) || '[Unavailable]';
+  const th: Json = r.thumbnail?.thumbnails?.[0];
+  const short = (th?.width && th?.height && th.height > th.width) || /#shorts?\b/i.test(title);
   return {
     videoId: r.videoId,
     setVideoId: r.setVideoId ?? null,
@@ -125,6 +127,7 @@ function parseVideo(r: Json, pos: number): Video {
     watched: resume?.thumbnailOverlayResumePlaybackRenderer?.percentDurationWatched ?? 0,
     index: Number(runsText(r.index)) || 0,
     pos,
+    short: Boolean(short),
   };
 }
 

@@ -25,6 +25,10 @@
         <option value="length-asc">Shortest</option>
         <option value="title">Title A–Z</option>
         <option value="channel">Channel A–Z</option>
+        <option value="views-desc">Most viewed</option>
+        <option value="views-asc">Least viewed</option>
+        <option value="pub-desc">Newest upload</option>
+        <option value="pub-asc">Oldest upload</option>
       </select>
       <button id="closeBtn" class="btn icon" title="Close (Esc)" aria-label="Close">✕</button>
     </div>
@@ -38,12 +42,18 @@
         <label><input type="radio" name="dur" value="short" /> Under 4 min</label>
         <label><input type="radio" name="dur" value="mid" /> 4 – 20 min</label>
         <label><input type="radio" name="dur" value="long" /> Over 20 min</label>
+        <label><input type="radio" name="dur" value="custom" /> Custom</label>
+        <div id="durCustom" class="dur-custom" hidden>
+          <div class="dur-row"><span>Min</span><input id="durMin" type="range" min="0" max="180" step="1" value="0" /><output id="durMinOut">0 min</output></div>
+          <div class="dur-row"><span>Max</span><input id="durMax" type="range" min="0" max="180" step="1" value="180" /><output id="durMaxOut">no limit</output></div>
+        </div>
       </section>
       <section class="group">
         <h2>Show only</h2>
         <label><input type="checkbox" id="fUnavailable" /> Unavailable videos</label>
         <label><input type="checkbox" id="fWatched" /> Started or watched</label>
         <label><input type="checkbox" id="fDupes" /> Duplicates</label>
+        <label><input type="checkbox" id="fShorts" /> Shorts</label>
       </section>
       <section class="group grow">
         <h2>Channels</h2>

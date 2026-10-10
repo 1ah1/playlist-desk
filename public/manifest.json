@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Playlist Desk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Search, filter and bulk-manage your YouTube playlists — including Watch Later. Runs locally in your browser.",
   "author": "SpartA1ah1 (https://x.com/SpartA1ah1)",
   "homepage_url": "https://github.com/1ah1/playlist-desk",

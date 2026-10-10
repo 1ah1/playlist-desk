@@ -7,12 +7,18 @@ import { AUTHOR_URL, PAYPAL_URL, SOURCE_URL, WALLETS } from './about';
 import type { PlaylistRecord, PlaylistSummary, Video } from '../shared/types';
 
 // ---------- state ----------
-type Duration = 'any' | 'short' | 'mid' | 'long';
-type Sort = 'added-desc' | 'added-asc' | 'length-desc' | 'length-asc' | 'title' | 'channel';
+type Duration = 'any' | 'short' | 'mid' | 'long' | 'custom';
+type Sort =
+  | 'added-desc' | 'added-asc' | 'length-desc' | 'length-asc' | 'title' | 'channel'
+  | 'views-desc' | 'views-asc' | 'pub-desc' | 'pub-asc';
 
 interface Filter {
   q: string;
   dur: Duration;
+  /** Custom duration bounds in minutes; max === DUR_MAX means no upper limit. */
+  durMin: number;
+  durMax: number;
+  shorts: boolean;
   unavailable: boolean;
   watched: boolean;
   dupes: boolean;
@@ -27,6 +33,7 @@ interface PendingRemove {
 }
 
 const PAGE = 100;
+const DUR_MAX = 180;
 const UNDO_MS = 10_000;
 
 const params = new URLSearchParams(location.search);
@@ -38,7 +45,7 @@ const state = {
   record: null as PlaylistRecord | null,
   view: [] as Video[],
   selected: new Set<string>(),
-  filter: { q: '', dur: 'any', unavailable: false, watched: false, dupes: false, channel: null } as Filter,
+  filter: { q: '', dur: 'any', durMin: 0, durMax: DUR_MAX, shorts: false, unavailable: false, watched: false, dupes: false, channel: null } as Filter,
   sort: 'added-desc' as Sort,
   page: 0,
   syncing: false,
@@ -93,7 +100,32 @@ const el = {
   fUnavailable: $<HTMLInputElement>('fUnavailable'),
   fWatched: $<HTMLInputElement>('fWatched'),
   fDupes: $<HTMLInputElement>('fDupes'),
+  fShorts: $<HTMLInputElement>('fShorts'),
+  durCustom: $('durCustom'),
+  durMin: $<HTMLInputElement>('durMin'),
+  durMax: $<HTMLInputElement>('durMax'),
+  durMinOut: $('durMinOut'),
+  durMaxOut: $('durMaxOut'),
 };
+
+// ---------- parsing helpers for sort ----------
+/** "1.2M views" → 1200000; unknown → -1 so it sorts last. */
+function viewsOf(v: Video): number {
+  const m = /([\d.,]+)\s*([KMB])?/i.exec(v.views);
+  if (!m?.[1]) return -1;
+  const n = parseFloat(m[1].replace(/,/g, ''));
+  const mult = { K: 1e3, M: 1e6, B: 1e9 }[(m[2] ?? '').toUpperCase()] ?? 1;
+  return Number.isFinite(n) ? n * mult : -1;
+}
+/** "3 weeks ago" → age in days; unknown → Infinity so it sorts last on "newest upload". */
+function ageDaysOf(v: Video): number {
+  const m = /(\d+)\s*(second|minute|hour|day|week|month|year)/i.exec(v.published);
+  if (!m?.[1] || !m[2]) return Infinity;
+  const n = Number(m[1]);
+  const days = { second: 1 / 86400, minute: 1 / 1440, hour: 1 / 24, day: 1, week: 7, month: 30.4, year: 365 }[m[2].toLowerCase()] ?? 1;
+  return n * days;
+}
+const isShort = (v: Video): boolean => v.short ?? (v.seconds > 0 && v.seconds <= 60 && /#shorts?\b/i.test(v.title));
 
 // ---------- helpers ----------
 let toastTimer: ReturnType<typeof setTimeout> | undefined;
@@ -220,10 +252,16 @@ function apply(): void {
   }
   if (f.unavailable) list = list.filter((v) => !v.playable);
   if (f.watched) list = list.filter((v) => v.watched > 0);
-  if (f.dur !== 'any')
+  if (f.shorts) list = list.filter(isShort);
+  if (f.dur === 'custom') {
+    const lo = f.durMin * 60;
+    const hi = f.durMax >= DUR_MAX ? Infinity : f.durMax * 60;
+    list = list.filter((v) => v.seconds >= lo && v.seconds <= hi);
+  } else if (f.dur !== 'any') {
     list = list.filter((v) =>
       f.dur === 'short' ? v.seconds > 0 && v.seconds < 240 : f.dur === 'mid' ? v.seconds >= 240 && v.seconds <= 1200 : v.seconds > 1200,
     );
+  }
   if (f.channel) list = list.filter((v) => v.channel === f.channel);
   if (f.q) {
     const terms = f.q.toLowerCase().split(/\s+/).filter(Boolean);
@@ -248,6 +286,14 @@ function apply(): void {
         return a.title.localeCompare(b.title);
       case 'channel':
         return a.channel.localeCompare(b.channel) || a.title.localeCompare(b.title);
+      case 'views-desc':
+        return viewsOf(b) - viewsOf(a);
+      case 'views-asc':
+        return viewsOf(a) - viewsOf(b);
+      case 'pub-desc':
+        return ageDaysOf(a) - ageDaysOf(b);
+      case 'pub-asc':
+        return ageDaysOf(b) - ageDaysOf(a);
       default:
         return byAdded(a, b);
     }
@@ -486,9 +532,30 @@ el.search.addEventListener('input', () => {
 document.querySelectorAll<HTMLInputElement>('input[name=dur]').forEach((r) =>
   r.addEventListener('change', () => {
     state.filter.dur = r.value as Duration;
+    el.durCustom.hidden = state.filter.dur !== 'custom';
     resetPage();
   }),
 );
+function readDurRange(): void {
+  let lo = Number(el.durMin.value);
+  let hi = Number(el.durMax.value);
+  if (lo > hi) [lo, hi] = [hi, lo];
+  state.filter.durMin = lo;
+  state.filter.durMax = hi;
+  el.durMinOut.textContent = `${lo} min`;
+  el.durMaxOut.textContent = hi >= DUR_MAX ? 'no limit' : `${hi} min`;
+}
+let durTimer: ReturnType<typeof setTimeout> | undefined;
+for (const r of [el.durMin, el.durMax])
+  r.addEventListener('input', () => {
+    readDurRange();
+    clearTimeout(durTimer);
+    durTimer = setTimeout(resetPage, 80);
+  });
+el.fShorts.addEventListener('change', () => {
+  state.filter.shorts = el.fShorts.checked;
+  resetPage();
+});
 el.fUnavailable.addEventListener('change', () => {
   state.filter.unavailable = el.fUnavailable.checked;
   resetPage();

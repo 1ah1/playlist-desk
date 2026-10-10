@@ -22,6 +22,8 @@ export interface Video {
   index: number;
   /** Position in the order YouTube returned the list. */
   pos: number;
+  /** True when the thumbnail is portrait or the title is tagged #shorts. Absent on indexes synced before 1.0.1. */
+  short?: boolean;
 }
 
 export interface PlaylistRecord {
