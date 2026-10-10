@@ -118,11 +118,21 @@ function viewsOf(v: Video): number {
   return Number.isFinite(n) ? n * mult : -1;
 }
 /** "3 weeks ago" → age in days; unknown → Infinity so it sorts last on "newest upload". */
+/** Handles both "3 weeks ago" and YouTube's compact "3w ago" / "1mo ago" / "16y ago". */
 function ageDaysOf(v: Video): number {
-  const m = /(\d+)\s*(second|minute|hour|day|week|month|year)/i.exec(v.published);
+  const m = /(\d+)\s*(seconds?|minutes?|hours?|days?|weeks?|months?|years?|mo|s|m|h|d|w|y)\b/i.exec(v.published);
   if (!m?.[1] || !m[2]) return Infinity;
   const n = Number(m[1]);
-  const days = { second: 1 / 86400, minute: 1 / 1440, hour: 1 / 24, day: 1, week: 7, month: 30.4, year: 365 }[m[2].toLowerCase()] ?? 1;
+  const unit = m[2].toLowerCase();
+  const days =
+    /^(sec|s$)/.test(unit) ? 1 / 86400
+    : /^(min|m$)/.test(unit) ? 1 / 1440
+    : /^h/.test(unit) ? 1 / 24
+    : /^d/.test(unit) ? 1
+    : /^w/.test(unit) ? 7
+    : /^mo/.test(unit) ? 30.4
+    : /^y/.test(unit) ? 365
+    : 1;
   return n * days;
 }
 const isShort = (v: Video): boolean => v.short ?? (v.seconds > 0 && v.seconds <= 60 && /#shorts?\b/i.test(v.title));

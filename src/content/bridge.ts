@@ -122,8 +122,12 @@ function parseVideo(r: Json, pos: number): Video {
     lengthText: runsText(r.lengthText),
     thumb: r.thumbnail?.thumbnails?.[0]?.url ?? '',
     playable: r.isPlayable !== false && !/^\[(deleted|private) video\]$/i.test(title),
-    views: info.find((t) => /view/i.test(t)) ?? '',
-    published: info.find((t) => /ago|Streamed|Premiere/i.test(t)) ?? '',
+    // YouTube alternates between "1.2M views · 3 years ago" and compact "1.2M · 3y ago".
+    views: info.find((t) => /view/i.test(t)) ?? info.find((t) => /^\s*[\d.,]+\s*[KMB]?\s*$/i.test(t)) ?? '',
+    published:
+      info.find((t) => /ago|Streamed|Premiere/i.test(t)) ??
+      info.find((t) => /^\s*\d+\s*(s|m|h|d|w|mo|y)\b/i.test(t)) ??
+      '',
     watched: resume?.thumbnailOverlayResumePlaybackRenderer?.percentDurationWatched ?? 0,
     index: Number(runsText(r.index)) || 0,
     pos,
