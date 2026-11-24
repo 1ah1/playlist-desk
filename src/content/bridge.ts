@@ -171,7 +171,8 @@ async function fetchPlaylist(
     const batch: Video[] = [];
     for (const r of walk(j, 'playlistVideoRenderer')) {
       if (!r?.videoId) continue;
-      const k: string = r.setVideoId || r.videoId;
+      // Watch Later can't hold a video twice, so key it by video; other lists may repeat a video legitimately.
+      const k: string = playlistId === 'WL' ? r.videoId : r.setVideoId || r.videoId;
       if (seen.has(k)) continue;
       seen.add(k);
       const v = parseVideo(r, videos.length);

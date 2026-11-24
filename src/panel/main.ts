@@ -49,6 +49,10 @@ const state = {
   sort: 'added-desc' as Sort,
   page: 0,
   syncing: false,
+  /** videoId → titles of the other synced playlists that also hold it (Liked videos excluded). */
+  others: new Map<string, string[]>(),
+  /** How many other playlists have a local index to compare against. */
+  othersSynced: 0,
 };
 
 /** Selection key: a playlist entry id when we have one, else the video id. */
@@ -202,7 +206,30 @@ async function loadRecord(): Promise<void> {
   state.record = (await db.get(state.current)) ?? null;
   state.selected.clear();
   state.filter.channel = null;
+  await loadOthers();
   apply();
+}
+
+/**
+ * Duplicates = videos in the open playlist that are also in another playlist.
+ * Only playlists synced at least once can be compared. Liked videos is left out:
+ * liking a video is not the same as filing it in a list.
+ */
+async function loadOthers(): Promise<void> {
+  const map = new Map<string, string[]>();
+  let n = 0;
+  for (const r of await db.all()) {
+    if (r.playlistId === state.current || r.playlistId === 'LL') continue;
+    n++;
+    const name = state.playlists.find((p) => p.playlistId === r.playlistId)?.title || r.title || r.playlistId;
+    for (const id of new Set(r.videos.map((v) => v.videoId))) {
+      const names = map.get(id);
+      if (names) names.push(name);
+      else map.set(id, [name]);
+    }
+  }
+  state.others = map;
+  state.othersSynced = n;
 }
 
 async function sync(): Promise<void> {
@@ -255,11 +282,7 @@ function apply(): void {
   for (const b of [el.remove, el.move, el.copy]) b.disabled = state.syncing;
 
   let list: Video[] = rec?.videos ?? [];
-  if (f.dupes) {
-    const counts = new Map<string, number>();
-    for (const v of list) counts.set(v.videoId, (counts.get(v.videoId) ?? 0) + 1);
-    list = list.filter((v) => (counts.get(v.videoId) ?? 0) > 1);
-  }
+  if (f.dupes) list = list.filter((v) => state.others.has(v.videoId));
   if (f.unavailable) list = list.filter((v) => !v.playable);
   if (f.watched) list = list.filter((v) => v.watched > 0);
   if (f.shorts) list = list.filter(isShort);
@@ -348,6 +371,8 @@ function renderRows(): void {
   for (const v of state.view.slice(start, end)) {
     const k = key(v);
     const sel = state.selected.has(k);
+    const elsewhere = state.filter.dupes ? state.others.get(v.videoId) : undefined;
+    const also = elsewhere ? `<div class="also">Also in: ${esc(elsewhere.join(', '))}</div>` : '';
     const sub = v.playable ? esc([v.channel, v.views, v.published].filter(Boolean).join('  ·  ')) : 'Unavailable — deleted or private';
     html += `<div class="row ${sel ? 'sel' : ''} ${v.playable ? '' : 'gone'}" data-k="${esc(k)}">
       <input type="checkbox" ${sel ? 'checked' : ''} aria-label="Select" />
@@ -357,6 +382,7 @@ function renderRows(): void {
       <div class="meta">
         <div class="title"><a href="${YT}/watch?v=${esc(v.videoId)}&list=${esc(state.current)}" target="_blank" rel="noopener">${esc(v.title)}</a></div>
         <div class="sub">${sub}</div>
+        ${also}
       </div></div>`;
   }
   el.rows.innerHTML = html;
@@ -574,8 +600,12 @@ el.fWatched.addEventListener('change', () => {
   state.filter.watched = el.fWatched.checked;
   resetPage();
 });
-el.fDupes.addEventListener('change', () => {
+el.fDupes.addEventListener('change', async () => {
   state.filter.dupes = el.fDupes.checked;
+  if (state.filter.dupes) {
+    await loadOthers(); // pick up playlists synced since this one was opened
+    if (!state.othersSynced) toast('Sync your other playlists first — duplicates are checked against playlists synced here', 5000);
+  }
   resetPage();
 });
 el.channelSearch.addEventListener('input', renderChannels);
